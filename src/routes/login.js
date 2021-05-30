@@ -10,19 +10,38 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 
+import a from "../util/config";
+
+import ErrorMessage from "../components/ErrorMessage";
+
 // @Citation https://blog.logrocket.com/how-to-create-forms-with-chakra-ui-in-react-apps/
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [username, setUsername] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [authToken, setAuthToken] = useState("");
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
-
-    axios.post()
+    try {
+      console.log(email);
+      const res = await axios.post("http://localhost:4000/auth/login", {
+        email: email,
+        password: password,
+      });
+      console.log(res.headers)
+      setAuthToken(res.headers);
+      setLoading(false);
+    } catch (error) {
+      setError("Invalid username or password");
+      setLoading(false);
+      setEmail("");
+      setPassword("");
+      console.error(error);
+    }
   };
   return (
     <Flex mt={12} width="full" align="center" justifyContent="center">
@@ -41,30 +60,21 @@ export default function Login() {
           <form onSubmit={handleSubmit}>
             <FormControl id="email" isRequired>
               <FormLabel>Email address</FormLabel>
-              <Input type="email" placeholder="example@example.com" onChange={e => setEmail(e.currentTarget)} />
+              <Input
+                type="email"
+                placeholder="example@example.com"
+                onChange={(e) => setEmail(e.currentTarget.value)}
+              />
             </FormControl>
-            <FormControl id="firstName" isRequired>
-              <FormLabel>First Name</FormLabel>
-              <Input type="text" placeholder="John" onChange={e => setFirstName(e.currentTarget)} />
-            </FormControl>{" "}
-            <FormControl id="lastName" isRequired>
-              <FormLabel>Last Name</FormLabel>
-              <Input type="text" placeholder="Smith"  onChange={e => setLastName(e.currentTarget)}/>
-            </FormControl>{" "}
-            <FormControl id="username" isRequired>
-              <FormLabel>Username</FormLabel>
-              <Input type="text" placeholder="JohnSmith1337" onChange={e => setUsername(e.currentTarget)}/>
-            </FormControl>{" "}
             <FormControl id="password" isRequired>
               <FormLabel>Password</FormLabel>
-              <Input type="password" placeholder="*******" onChange={e => setPassword(e.currentTarget)} />
+              <Input
+                type="password"
+                placeholder="*******"
+                onChange={(e) => setPassword(e.currentTarget.value)}
+              />
             </FormControl>
-            <Button
-              width="full"
-              mt={4}
-              type="submit"
-              variant="outline"
-            >
+            <Button width="full" mt={4} type="submit" variant="outline">
               Log In
             </Button>
           </form>
